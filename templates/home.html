@@ -1,0 +1,78 @@
+<!-- Template -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mastermind</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 680px; margin: 2rem auto; }
+    form { margin: 1rem 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border-bottom: 1px solid #ddd; padding: .5rem; text-align: left; }
+    code { background: #f5f5f5; padding: .1rem .3rem; border-radius: 4px; }
+    .muted { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Mastermind Game</h1>
+
+  <p><strong>Attempts left:</strong> {{ guesses_left }} <span class="muted">/ {{ max_guesses }}</span></p>
+
+  {% if not game_over %}
+    <form action="{{ url_for('make_guess') }}" method="post">
+      <label for="guess">
+        Enter exactly 4 digits between 0 and 7 (duplicates allowed):
+      </label>
+      <div style="margin-top:.5rem">
+        <input
+          id="guess"
+          name="guess"
+          required
+          pattern="[0-7]{4}"
+          minlength="4"
+          maxlength="4"
+          inputmode="numeric"
+          autocomplete="off"
+          title="Enter exactly 4 digits between 0 and 7. Duplicates are allowed."
+        />
+        <button type="submit">Guess</button>
+      </div>
+      <small class="muted" style="display:block;margin-top:.25rem">
+        Example: <code>0123</code> or <code>0770</code>
+      </small>
+    </form>
+  {% else %}
+    <p><strong>GAME OVER! <br> Start a new game to keep playing.</strong></p>
+  {% endif %}
+
+  <h2>History</h2>
+  {% if history %}
+    <table>
+      <thead>
+        <tr>
+          <th><strong>Guess</strong></th>
+          <th><strong>Exact (digit &amp; position)</strong></th>
+          <th><strong>Right digit, wrong position</strong></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in history %}
+          <tr>
+            <td>{{ row.guess }}</td>
+            <td>{{ row.exact_guess }}</td>
+            <td>{{ row.number_only }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">No guesses yet.</p>
+  {% endif %}
+
+  <form action="{{ url_for('new_game') }}" method="post" style="margin-top:1rem">
+    <button type="submit">New Game</button>
+  </form>
+</body>
+</html>
