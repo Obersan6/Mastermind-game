@@ -86,3 +86,14 @@ Not part of the take-home, but showing possible future directions:
 - Jinja2 templates
 - Requests (Random.org API integration)
 - GitHub for version control & documentation
+
+<!-- # DB docs (reference)
+
+The app uses SQLAlchemy models as the source of truth and can create tables via `create_db.py`.
+These SQL files are for reference and optional local usage.
+
+## Option A (recommended for assignment)
+Use SQLAlchemy to create tables:
+1. Ensure .env has DATABASE_URL set (postgresql+psycopg://.../mastermind_db)
+2. Run: -->
+

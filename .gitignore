@@ -1,4 +1,42 @@
-venv/
+# Environment & secrets
+.env
+.env.*
+
+# Python bytecode
 __pycache__/
 *.pyc
-Steps-thoughtprocess.docx
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+
+# Flask instance folder (if used)
+instance/
+
+# Local DB dumps/backups (optional – if you create them)
+db_dumps/
+backups/
+
+# Keep SQL docs tracked
+# (Only add a global *.sql ignore if you also add an exception like !docs/*.sql)
+
+# Testing artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build/packaging
+dist/
+build/
+*.egg-info/
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db

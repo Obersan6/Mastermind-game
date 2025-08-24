@@ -2,12 +2,15 @@
 
 from flask import Flask, render_template, request, redirect, url_for, session
 import os, secrets
-import requests 
-from collections import Counter 
+import requests
+from collections import Counter
+from config import apply_config
+from models import db
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
+apply_config(app)  
+db.init_app(app)    
 
 RANDOM_INTS_URL = 'https://www.random.org/integers/'
 
