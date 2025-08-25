@@ -1,4 +1,4 @@
-<!-- Template -->
+<!-- /project-root/templates/home.html -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mastermind</title>
   <style>
+    /* Basic inline styles for simplicity; no external CSS in Phase 1 */
     body { font-family: system-ui, sans-serif; max-width: 680px; margin: 2rem auto; }
     form { margin: 1rem 0; }
     table { border-collapse: collapse; width: 100%; }
@@ -18,8 +19,10 @@
 <body>
   <h1>Mastermind Game</h1>
 
+  <!-- Game status -->
   <p><strong>Attempts left:</strong> {{ guesses_left }} <span class="muted">/ {{ max_guesses }}</span></p>
 
+  <!-- Guess form: only shown while game is active -->
   {% if not game_over %}
     <form action="{{ url_for('make_guess') }}" method="post">
       <label for="guess">
@@ -44,6 +47,7 @@
       </small>
     </form>
   {% else %}
+    <!-- End-of-game message -->
     <p><strong>GAME OVER! <br> Start a new game to keep playing.</strong></p>
   {% endif %}
 
@@ -71,6 +75,7 @@
     <p class="muted">No guesses yet.</p>
   {% endif %}
 
+  <!-- Button to start a new game -->
   <form action="{{ url_for('new_game') }}" method="post" style="margin-top:1rem">
     <button type="submit">New Game</button>
   </form>

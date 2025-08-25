@@ -1,4 +1,18 @@
-venv/
+# --- Python build/cache ---
 __pycache__/
 *.pyc
-Steps-thoughtprocess.docx
+*.pyo
+*.pyd
+
+# --- Virtual environments ---
+venv/
+.venv/
+
+# --- Local/temporary files ---
+.DS_Store        # macOS finder metadata
+Thumbs.db        # Windows explorer metadata
+
+
+# Environment & secrets
+.env
+.env.*
