@@ -1,5 +1,4 @@
-<!-- Template -->
-
+<!-- /project-root/templates/home.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mastermind</title>
   <style>
+    .card { border:1px solid #e0e0e0; border-radius:10px; padding:1rem; margin-top:1rem; background:#fff; }
+    .text-muted { color:#666; }
     body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem auto; }
     form { margin: 1rem 0; }
     table { border-collapse: collapse; width: 100%; }
@@ -58,6 +59,7 @@
           inputmode="numeric"
           autocomplete="off"
           title="Enter exactly 4 digits between 0 and 7. Duplicates are allowed."
+          autofocus
         />
         <button type="submit">Guess</button>
       </div>
@@ -65,8 +67,6 @@
         Example: <code>0123</code> or <code>0770</code>
       </small>
     </form>
-  {% else %}
-    <p><strong>GAME OVER!</strong> Start a new game to keep playing.</p>
   {% endif %}
 
   <!-- History -->
@@ -98,7 +98,8 @@
   <form action="{{ url_for('new_game') }}" method="post" style="margin-top:1rem">
     <div class="row">
       <label for="player_username" class="muted">Your name:</label>
-      <input id="player_username" name="player_username" placeholder="Player" />
+      <input id="player_username" name="player_username" placeholder="Player"
+             value="{{ session.get('player_username', '') }}" />
 
       <label for="difficulty" class="muted">Difficulty:</label>
       <select id="difficulty" name="difficulty">
@@ -111,9 +112,30 @@
     </div>
   </form>
 
-  <!-- Optional GET fallback link -->
-  <p class="muted">
-    Or <a href="{{ url_for('new_game', difficulty='medium', player_username=(session.get('player_username') or 'Player')) }}">start a new game here</a>.
-  </p>
+  {% if game and game.status in ['won','lost'] %}
+    <div class="card">
+      <h3>Game Over</h3>
+
+      {% if game.status == 'won' %}
+        <p><strong>Result:</strong> You won! 🎉</p>
+        <p><strong>Score:</strong> {{ game.score }}</p>
+        <p class="text-muted">
+          Nailed it! Smart deductions and steady pacing — that was textbook Mastermind.
+          Start a new round and see if you can beat this score.
+        </p>
+      {% else %}
+        <p><strong>Result:</strong> You lost.</p>
+        <p><strong>Score:</strong> {{ game.score }}</p>
+        <p class="text-muted">
+          That pattern was tricky. You gathered good clues — build on them next round.
+          New game, fresh code, better outcome.
+        </p>
+      {% endif %}
+
+      <form action="{{ url_for('new_game') }}" method="post" style="margin-top:0.5rem">
+        <button type="submit">Start New Game</button>
+      </form>
+    </div>
+  {% endif %}
 </body>
 </html>

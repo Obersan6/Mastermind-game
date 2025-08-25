@@ -40,15 +40,27 @@ def fetch_secret_code():
         # Default to secrets if the API call fails (app remains functional even when offline)
         return [secrets.randbelow(8) for _ in range(4)]
 
-MAX_GUESSES = 10
-
 def start_game_session():
     """Ensure session keys used by templates exist (idempotent)."""
     session.setdefault('history', [])
     session.setdefault('game_over', False)
 
 def score_guess(secret: str, guess: str) -> tuple[int, int]:
-    """Return (exact_guess, number_only) comparing 4-digit strings with digits 0–7."""
+    """
+    Compare a player's guess to the secret code.
+
+    Returns a tuple of:
+    (exact matches, right digit in wrong position)
+
+    >>> score_guess("0123", "0123")
+    (4, 0)
+    >>> score_guess("0123", "0456")
+    (1, 0)
+    >>> score_guess("0123", "3012")
+    (0, 4)
+    >>> score_guess("0123", "7777")
+    (0, 0)
+    """
     exact = sum(1 for s, g in zip(secret, guess) if s == g)
     sc = Counter(secret)
     gc = Counter(guess)
@@ -61,6 +73,28 @@ def _seconds_left(game):
         return 0
     remaining = int((game.expires_at - _utcnow()).total_seconds())
     return max(0, remaining)
+
+# --- scoring helper ---
+def compute_score(difficulty: str, attempts_left: int, won: bool) -> int:
+    """
+    Compute final score based on difficulty, attempts left, and outcome.
+
+    Scoring rules:
+    - Easy   base = 50
+    - Medium base = 75
+    - Hard   base = 100
+    - Only applied if the player wins; otherwise 0.
+
+    >>> compute_score("easy", attempts_left=3, won=True)
+    80
+    >>> compute_score("hard", attempts_left=0, won=True)
+    100
+    >>> compute_score("medium", attempts_left=5, won=False)
+    0
+    """
+    base = {"easy": 50, "medium": 75, "hard": 100}.get(difficulty, 50)
+    return (base + attempts_left * 10) if won else 0
+
 
 
 # Homepage route where the game starts   
@@ -98,6 +132,7 @@ def home():
 def make_guess():
     """Process a user's guess, persist it, enforce timer, and redirect to home."""
 
+    # Ensure session/game scaffolding exists (your helper)
     start_game_session()
 
     if session.get('game_over'):
@@ -113,27 +148,29 @@ def make_guess():
         flash("No active game.")
         return redirect(url_for('home'))
 
-    # --- TIMER ENFORCEMENT ---
+    # --- TIMER ENFORCEMENT (before reading the new guess) ---
     now = _utcnow()
     if game.expires_at and now >= game.expires_at:
-        game.status = 'lost'   # treat timeout as a loss 
+        # Time's up → treat as loss; persist score=0 via helper
+        attempts_left = max(0, (game.max_guesses or 0) - (game.attempts_used or 0))
+        game.status = 'lost'
+        game.score = compute_score(game.difficulty, attempts_left, won=False)  # = 0
         db.session.commit()
         session['game_over'] = True
         flash("⏰ Time’s up! You ran out of time — start a new round and you’ll do even better.")
         return redirect(url_for('home'))
-    # --------------------------
+    # --------------------------------------------------------
 
-    # Read and validate the guess (expects "0123")
+    # Read + validate guess
     guess_input = (request.form.get('guess') or '').strip()
-
     if len(guess_input) != 4 or any(ch not in '01234567' for ch in guess_input):
         flash("Please enter exactly 4 digits from 0–7 (e.g., 0123). You’ve got this!")
         return redirect(url_for('home'))
 
-    # Score the guess against the DB secret (strings)
+    # Score the guess vs the secret
     exact_guess, number_only = score_guess(game.secret_code, guess_input)
 
-    # Persist the guess row
+    # Persist guess row
     g_row = Guess(
         game_id     = game.id,
         digits      = guess_input,
@@ -142,19 +179,18 @@ def make_guess():
     )
     db.session.add(g_row)
 
-    # Increment attempts on the game
+    # Increment attempts
     game.attempts_used = (game.attempts_used or 0) + 1
+
+    # Attempts left after this guess (used by scoring)
+    attempts_left = max(0, (game.max_guesses or 0) - (game.attempts_used or 0))
 
     # Win condition
     if exact_guess == 4:
         game.status = 'won'
-        # Optional mini-score: seconds_left + 5 * guesses_left (pre-commit estimate)
-        seconds_left = max(0, int((game.expires_at - now).total_seconds())) if game.expires_at else 0
-        guesses_left_est = max(0, (game.max_guesses or 0) - (game.attempts_used or 0))
-        game.score = seconds_left + 5 * guesses_left_est
+        game.score = compute_score(game.difficulty, attempts_left, won=True)
         db.session.commit()
 
-        # Mirror a concise entry to session history for your template
         session.setdefault('history', []).append({
             'guess': [int(c) for c in guess_input],
             'exact_guess': exact_guess,
@@ -165,9 +201,10 @@ def make_guess():
         flash("🎉 Exact match — fantastic! You cracked the code!")
         return redirect(url_for('home'))
 
-    # Out-of-guesses loss (after this attempt)
+    # Out-of-guesses loss
     if game.attempts_used >= game.max_guesses:
         game.status = 'lost'
+        game.score = compute_score(game.difficulty, attempts_left, won=False)  # 0
         db.session.commit()
 
         session.setdefault('history', []).append({
@@ -180,7 +217,7 @@ def make_guess():
         flash("So close! You’ve used all attempts — start a new game and try a fresh pattern.")
         return redirect(url_for('home'))
 
-    # Non-terminal case: commit and encourage
+    # Non-terminal case: commit current guess + encourage
     db.session.commit()
 
     session.setdefault('history', []).append({
@@ -190,7 +227,7 @@ def make_guess():
     })
     session.modified = True
 
-    # Gentle feedback
+    # Gentle feedback for next try
     if exact_guess > 0:
         flash(f"Nice! {exact_guess} exact, {number_only} correct digits in other positions.")
     elif number_only > 0:

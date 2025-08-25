@@ -1,5 +1,5 @@
 -- docs/schema.sql
--- Mastermind: schema + seed (PostgreSQL 12+ for generated columns)
+-- Mastermind: schema + seed 
 
 -- =======================
 -- SCHEMA
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS games (
     id               SERIAL PRIMARY KEY,
     user_id          INTEGER REFERENCES users(id) ON DELETE SET NULL,
 
-    secret_code      CHAR(4) NOT NULL CHECK (secret_code ~ '^[0-7]{4}$'),
+    secret_code      VARCHAR(4) NOT NULL CHECK (secret_code ~ '^[0-7]{4}$'),
 
     status           TEXT NOT NULL CHECK (status IN ('active','won','lost')) DEFAULT 'active',
     difficulty       TEXT NOT NULL CHECK (difficulty IN ('easy','medium','hard')) DEFAULT 'medium',
@@ -40,14 +40,17 @@ CREATE TABLE IF NOT EXISTS guesses (
     id              SERIAL PRIMARY KEY,
     game_id         INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE,
 
-    digits          CHAR(4) NOT NULL CHECK (digits ~ '^[0-7]{4}$'),
+    digits          VARCHAR(4) NOT NULL CHECK (digits ~ '^[0-7]{4}$'),
     exact_guess     SMALLINT NOT NULL CHECK (exact_guess BETWEEN 0 AND 4),
     number_only     SMALLINT NOT NULL CHECK (number_only BETWEEN 0 AND 4),
 
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+
 CREATE INDEX IF NOT EXISTS idx_guesses_game_id ON guesses(game_id);
+CREATE INDEX IF NOT EXISTS idx_games_player_username ON games(player_username);
+CREATE INDEX IF NOT EXISTS idx_games_status ON games(status);
 
 -- =======================
 -- SEED (development only)

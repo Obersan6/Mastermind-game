@@ -20,9 +20,10 @@ class User(db.Model):
     username      = db.Column(String(50), nullable=False, unique=True)
     password_hash = db.Column(Text, nullable=False)
     created_at    = db.Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-
-    # Optional convenience; games.user_id uses ON DELETE SET NULL
     games = db.relationship("Game", backref="user", lazy=True)
+
+    def __repr__(self):
+        return f"<User id={self.id} username={self.username!r}>"
 
 
 # ---------------------------
@@ -60,6 +61,9 @@ class Game(db.Model):
         CheckConstraint("(timer_total_s IS NULL) OR (timer_total_s > 0)", name="ck_games_timer_pos_or_null"),
     )
 
+    def __repr__(self):
+        return f"<Game id={self.id} status={self.status} diff={self.difficulty} score={self.score}>"
+
 
 # ---------------------------
 # Guesses
@@ -83,3 +87,6 @@ class Guess(db.Model):
         CheckConstraint("exact_guess BETWEEN 0 AND 4", name="ck_guesses_exact_range"),
         CheckConstraint("number_only BETWEEN 0 AND 4", name="ck_guesses_present_range"),
     )
+
+    def __repr__(self):
+        return f"<Guess id={self.id} game_id={self.game_id} exact={self.exact_guess} number={self.number_only}>"
