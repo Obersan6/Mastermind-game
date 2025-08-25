@@ -19,7 +19,7 @@ def apply_config(app):
     db_url = os.environ.get("DATABASE_URL")
     if app_env == "prod" and not db_url:
         raise RuntimeError("DATABASE_URL is required in production")
-    app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "postgresql+psycopg://postgres:postgres@localhost:5432/mastermind_db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "postgresql+psycopg://postgres:postgres@localhost:5433/mastermind_db"
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

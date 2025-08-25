@@ -7,25 +7,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mastermind</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 680px; margin: 2rem auto; }
+    body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem auto; }
     form { margin: 1rem 0; }
     table { border-collapse: collapse; width: 100%; }
     th, td { border-bottom: 1px solid #ddd; padding: .5rem; text-align: left; }
     code { background: #f5f5f5; padding: .1rem .3rem; border-radius: 4px; }
     .muted { color: #666; }
+    .flash { padding:.6rem .8rem; margin:.75rem 0; border:1px solid #e0e0e0; border-radius:8px; background:#fafafa; }
+    .row { display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; }
+    .row > * { margin:.25rem 0; }
+    .pill { display:inline-block; padding:.2rem .5rem; border-radius:999px; background:#f3f3f3; }
   </style>
 </head>
 <body>
   <h1>Mastermind Game</h1>
 
-  <p><strong>Attempts left:</strong> {{ guesses_left }} <span class="muted">/ {{ max_guesses }}</span></p>
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="flash">
+        {% for m in messages %}
+          <div>{{ m|safe }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
 
-  {% if not game_over %}
-    <form action="{{ url_for('make_guess') }}" method="post">
-      <label for="guess">
-        Enter exactly 4 digits between 0 and 7 (duplicates allowed):
-      </label>
-      <div style="margin-top:.5rem">
+  <!-- Game status -->
+  <div class="row">
+    <div><strong>Attempts left:</strong> {{ guesses_left }} <span class="muted">/ {{ max_guesses }}</span></div>
+    {% if game and game.status == 'active' %}
+      <div class="pill"><strong>Time left:</strong> {{ seconds_left }}s</div>
+    {% elif game and game.status != 'active' %}
+      <div class="pill"><strong>Status:</strong> {{ game.status }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Guess form -->
+  {% if not game_over and game and game.status == 'active' %}
+    <form action="{{ url_for('make_guess') }}" method="post" novalidate>
+      <label for="guess">Enter exactly 4 digits between 0 and 7 (duplicates allowed):</label>
+      <div style="margin-top:.5rem" class="row">
         <input
           id="guess"
           name="guess"
@@ -44,9 +66,10 @@
       </small>
     </form>
   {% else %}
-    <p><strong>GAME OVER! <br> Start a new game to keep playing.</strong></p>
+    <p><strong>GAME OVER!</strong> Start a new game to keep playing.</p>
   {% endif %}
 
+  <!-- History -->
   <h2>History</h2>
   {% if history %}
     <table>
@@ -71,8 +94,26 @@
     <p class="muted">No guesses yet.</p>
   {% endif %}
 
+  <!-- New Game -->
   <form action="{{ url_for('new_game') }}" method="post" style="margin-top:1rem">
-    <button type="submit">New Game</button>
+    <div class="row">
+      <label for="player_username" class="muted">Your name:</label>
+      <input id="player_username" name="player_username" placeholder="Player" />
+
+      <label for="difficulty" class="muted">Difficulty:</label>
+      <select id="difficulty" name="difficulty">
+        <option value="easy">Easy (3:00)</option>
+        <option value="medium" selected>Medium (2:00)</option>
+        <option value="hard">Hard (1:30)</option>
+      </select>
+
+      <button type="submit">New Game</button>
+    </div>
   </form>
+
+  <!-- Optional GET fallback link -->
+  <p class="muted">
+    Or <a href="{{ url_for('new_game', difficulty='medium', player_username=(session.get('player_username') or 'Player')) }}">start a new game here</a>.
+  </p>
 </body>
 </html>
