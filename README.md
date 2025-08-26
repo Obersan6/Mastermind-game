@@ -47,12 +47,15 @@ Meets the minimum challenge requirements:
   https://github.com/Obersan6/Mastermind-game/tree/phase-1
 - **Video Demo – Phase-1** — *(link if available)*
 - **Steps — Thought Process & Planning (Phase-1)**  
-  https://github.com/Obersan6/Mastermind-game/blob/phase-1/docs/steps-thoughtprocess.md
+  **https://github.com/Obersan6/Mastermind-game/blob/phase-1/docs/steps-thoughtprocess.md**
 
 ---
 # Mastermind Game – Phase 2 (Upgraded Version)
 
-**[Video Demo - Phase-2](https://youtu.be/oSHFfTpTDzw)**
+- **[Video Demo - Phase-2](https://youtu.be/oSHFfTpTDzw)**
+- **Steps — Thought Process & Planning (Phase-1)**
+
+**https://github.com/Obersan6/Mastermind-game/blob/main/docs/steps-thoughtprocess.md**
 
 Focused on strengthening **backend logic** while keeping the UI **minimal and clear** (this is a **server-side challenge**, so styling is simple and time goes into enforceable logic and tests).
 
