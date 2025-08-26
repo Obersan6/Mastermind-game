@@ -4,130 +4,67 @@ This document outlines my thought process, planning, and staged development for 
 It is structured to show time management, prioritization, and possible enhancements beyond the basic requirements.  
 The file will be linked from the README.md in the repository.
 
----
+## Phase 1 — Baseline (short recap)
 
-## Phase 1: Baseline (Take-Home Challenge Requirements)
+For the longer, more descriptive Phase-1 version of this same file, see the phase-1 branch: https://github.com/Obersan6/Mastermind-game/tree/phase-1
 
-In this phase I will implement only the minimal requirements as specified in the challenge.  
-This ensures I meet the core requirements first and can demonstrate time management skills.
+### Core rules
+* Secret is **4 digits**, each **0–7**; **duplicates allowed**.
+* Feedback is **counts only** (never reveal which digit/position).
 
-### Assumptions & Interpretations
-- The secret code length is **4 digits**, each between **0–7**.
-- **Duplicates are allowed** (per *Implementation* section of the challenge spec, even though “Game rules” say “different numbers”). I follow the *Implementation* spec for consistency with the API examples.
-- The computer provides **counts only** (“correct digit, correct position” and “correct digit, wrong position”) - it never reveals which digit is correct.
-- Session is stored **server-side**, no accounts or persistence required in Phase 1.
+### Session-only
+* No accounts and no database in Phase-1.
 
-### Acceptance Criteria
-- Player can submit a 4-digit guess (digits 0–7).
-- Game responds with feedback:
-  - `exact_guess` = correct digit in correct position.
-  - `number_only` = correct digit in wrong position (no double counting).
-- Feedback history is displayed.
-- Remaining attempts counter is displayed.
-- Game locks input when:
-  - Player guesses all 4 digits correctly, or
-  - Player reaches 10 attempts without success.
-- Player can start a new game at any point.
+## Phase 2 — Plan (working notes)
 
-### Things I Need
-- Create virtual environment & download dependencies.
-- Include elements to ignore in `.gitignore`.
-- Implement sessions (server-side) to keep track of game state (secret, attempts, guesses).
-- User flow documentation.
-- README.md explaining rules and how to run.
-- (Optional Phase 1) Deployment on Render.
+Now Phase 1 is complete, so for this phase (Phase-2) I'll try to implement the following to make the game feel more alive while keeping it simple and solid:
 
-### Baseline Tech Stack
-- Python & Flask  
-- Jinja2 templates (for rendering the game UI)  
-- GitHub for hosting repository
+* **Timer for the whole game (3 minutes):** starts on **New Game**; when time runs out, guesses are blocked and the round counts as a **loss** with a clear message.
+* **Difficulty options:** `easy | medium | hard` control how many attempts you get (e.g., 12 / 10 / 8). Timer stays 3 minutes for all.
+* **Supportive messages:** short feedback after each guess (e.g., "2 exact, 1 misplaced"), a small celebration on win, and a gentle note on loss.
+* **Per-game scoring (non-persistent):** on win, `score = guesses_left`. No leaderboard yet.
+* **Server-side enforcement:** inputs, attempts, and timer are all enforced on the backend so rules hold even without JS.
+* **Randomness:** try Random.org first; fall back to Python `secrets`. Also use `secrets` to generate a strong `SECRET_KEY`.
+* **Persistence:** use a clean PostgreSQL model layer (games and guesses); the app can still run session-only if needed, but Phase-2 includes DB support.
 
-### Test Plan (Phase 1)
+### What I will need
 
-I verified functionality by manually playing the game several times, covering different scenarios:
+* **Environment & config**
+  * `.env` with `SECRET_KEY` and `DATABASE_URL` (PostgreSQL DSN).
+  * Update `.gitignore` as needed (venv, env files, caches).
 
-1. **General flow**
-   - Played multiple games, verifying session persisted state between guesses.
-   - Confirmed feedback is consistent when repeating the same guess twice.
+* **Game state fields**
+  * Timer: `started_at`, `expires_at = started_at + 180` (seconds).
+  * Difficulty caps: set `max_guesses` per level; track `attempts_used`; compute/display `guesses_left`.
 
-2. **Winning condition**
-   - Entered the correct code within the limit.
-   - Verified game ends immediately.
-   - Verified **“New Game” button** resets the session correctly.
+* **UX copy**
+  * Short, supportive feedback per guess; quick celebration on win; gentle nudge on loss.
 
-3. **Losing condition**
-   - Entered incorrect guesses until the 10th attempt.
-   - Verified game ends automatically at 10 attempts.
+* **Models & schema (PostgreSQL)**
+  * **User:** `id`, `username (unique)`, `password_hash` (bcrypt-ready), `created_at`
+  * **Game:** `id`, `user_id (nullable)`, `secret_code (4×0–7)`, `status (in_progress|win|loss)`, `difficulty`, `max_guesses`, `attempts_used`, *(optionally stored)* `guesses_left`, `started_at`, `expires_at`, `timer_total_s`, `score`, `player_username`
+  * **Guess:** `id`, `game_id`, `digits (4×0–7)`, `exact_guess (0–4)`, `number_only (0–4)`, `created_at`
+  * Keep schema/seed in `docs/schema.sql`. Real secrets live in `.env`.
 
-4. **Duplicates handling**
-   - Tested guesses with duplicates against codes containing duplicates.
-   - Verified counts did not overcount (bag-based logic worked).
+* **Testing (focused)**
+  * `guess_score` handles duplicates correctly (no double counting).
+  * Timer expiry blocks `/guess` and marks loss.
+  * One happy-path route test covering `/new` + a couple of valid guesses.
 
-5. **New Game before completion**
-   - Pressed “New Game” mid-game and confirmed session resets cleanly.
+### Tech stack (Phase-2)
 
-6. **Input validation**
-   - Submitted invalid values (too short, letters, digits outside 0–7).
-   - Verified these guesses were ignored (no crash, no history entry).
+* **Python 3, Flask, Jinja2, python-dotenv**
+* **Requests** (Random.org), **secrets** (fallback RNG + secret keys)
+* **SQLAlchemy + psycopg (PostgreSQL)**
+* **bcrypt** (for `users.password_hash` readiness)
+* **pytest** (small, focused tests)
 
----
+## Phase 3 — Possible additions (later)
 
-## Phase 2: Additions (Extensions & Differentiation)
-
-Once the baseline is complete and functional, I will add features to differentiate my submission and show architecture skills.  
-These additions are grouped into themes for clarity.
-
-### Gameplay Feature Ideas
-At this stage, these are **ideas under consideration** for Phase 2.  
-Different features could be implemented instead (or alongside these).  
-They showcase possible extensions but may not all be implemented, depending on available time:
-- Hints
-- Levels of difficulty (more numbers or fewer hints)
-- Rewards when guessing & winning
-- Timer (per game or per guess)
-- 2-player or multiplayer mode
-- Tests for scoring logic, input validation, and win/lose conditions
-
-### User Features
-- User sign in / sign up (authentication & validation)
-- User management
-- Player score & Leaderboard with other users’ scores
-
-### UX Enhancements
-- Encouraging messages even when losing
-- Celebration messages when winning
-- Competitive feedback (e.g., warning a history winner that another user is improving their score)
-
-### Additional Things I Need
-- Download additional dependencies
-- Update `.gitignore` as needed
-- Add models | tables | db | templates | error messages | table diagrm | user flow
-- Link from README.md to the baseline version of the game (code link) 
-- Optionally deploy the app (if time permits); otherwise provide a video demo
-- Expanded tests for new features
-
-### Extended Tech Stack
-- PostgreSQL (for persistence of scores, history, users)
-- Jinja2 templates (if expanding UI)
-- Bootstrap (chosen over Tailwind CSS for simplicity and speed)
-
----
-
-## Phase 3: Possible Enhancements (Future Consideration)
-
-These are not in scope for the take-home or additions, but show foresight and architectural thinking.  
-They can be mentioned in the README as future possibilities.
-
-- Real-time multiplayer (using WebSockets)
-- Analytics dashboard (game statistics, win rates)
-
----
-
-## Closing Note
-
-The project will be developed in stages:  
-1. Deliver the baseline version (Phase 1).  
-2. Extend with additional features (Phase 2).  
-3. Document possible future enhancements (Phase 3).  
-
-This staged approach demonstrates planning, time management, and ability to think beyond immediate requirements.
+* **Hints** (bounded, non-spoiling; possibly tied to difficulty)
+* **Leaderboard** (persist scores and compare across users)
+* **Two-player / multiplayer** modes
+* **Rewards** (small bonuses: medal icon, more hints, more minutes or more attempts)
+* **Sign in / sign up** (bcrypt) and simple profile settings
+* Optional **client-side countdown** (visual only; rules remain enforced on the server)
+* **Basic analytics** (e.g., win rates)

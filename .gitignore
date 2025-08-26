@@ -2,34 +2,24 @@
 .env
 .env.*
 
-# Python bytecode
+# Python bytecode / caches
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.pytest_cache/
 
 # Virtual environments
 venv/
 .venv/
+Scripts/             # sometimes created on Windows
 
 # Flask instance folder (if used)
 instance/
 
-# Local DB dumps/backups (optional – if you create them)
-db_dumps/
-backups/
-
-# Keep SQL docs tracked
-# (Only add a global *.sql ignore if you also add an exception like !docs/*.sql)
-
-# Testing artifacts
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Build/packaging
-dist/
+# Build / dist / metadata
 build/
+dist/
 *.egg-info/
 
 # IDE/editor settings
@@ -37,9 +27,6 @@ build/
 .idea/
 *.swp
 
-# OS files
+# OS junk
 .DS_Store
 Thumbs.db
-
-# Windows virtualenv metadata sometimes
-Scripts/
