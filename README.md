@@ -41,19 +41,19 @@ The baseline version meets **all minimum challenge requirements**:
 - Implemented with **Flask** and **Jinja2 templates**  
 
 **Milestone links:**  
-- [Phase-1 baseline code](https://github.com/Obersan6/Mastermind-game/tree/phase-1)  
-- [Video Demo – Phase-1](https://youtube.com)  
+- **[Phase-1 baseline code](https://github.com/Obersan6/Mastermind-game/tree/phase-1)**  
+- **[Video Demo – Phase-1](https://youtu.be/FbGLsqKqNGc)**  
 
 **Related documentation:**  
-- [Steps – Thought Process & Planning](docs/steps-thoughtprocess.md)  
+- **[Steps – Thought Process & Planning - Phase-1](https://github.com/Obersan6/Mastermind-game/blob/phase-1/docs/steps-thoughtprocess.md)**
 
 ---
 
 ### Phase-2 – Upgraded Version  
 Phase-2 introduces features such as timer, scoring, hints, difficulty levels, database integration, and tests.  
 
-- [Phase-2 snapshot (branch main)](https://github.com/Obersan6/Mastermind-game/tree/main)  
-- [Phase-2 last commit](https://github.com/Obersan6/Mastermind-game/commit/MAIN_COMMIT_HASH) *(replace with actual hash once pushed)*  
+- **[Phase-2 updated code (branch main)](https://github.com/Obersan6/Mastermind-game/tree/main)**  
+- **[Video demo - Phase-2](https://youtu.be/oSHFfTpTDzw)**  
 
 ---
 
