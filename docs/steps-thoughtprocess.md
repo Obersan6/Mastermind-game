@@ -6,7 +6,7 @@ The file will be linked from the README.md in the repository.
 
 ## Phase 1 — Baseline (short recap)
 
-For the longer, more descriptive Phase-1 version of this same file, see the phase-1 branch: https://github.com/Obersan6/Mastermind-game/tree/phase-1
+For the longer, more descriptive Phase-1 version of this same file, see the phase-1 branch: **https://github.com/Obersan6/Mastermind-game/tree/phase-1**
 
 ### Core rules
 * Secret is **4 digits**, each **0–7**; **duplicates allowed**.

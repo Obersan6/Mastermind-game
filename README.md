@@ -44,8 +44,8 @@ Meets the minimum challenge requirements:
 
 **Milestone links**
 - **Phase-1 baseline code** — `branch: phase-1`  
-  https://github.com/Obersan6/Mastermind-game/tree/phase-1
-- **Video Demo – Phase-1** — *(link if available)*
+  **https://github.com/Obersan6/Mastermind-game/tree/phase-1**
+- **[Video Demo – Phase-1](https://youtu.be/FbGLsqKqNGc)**
 - **Steps — Thought Process & Planning (Phase-1)**  
   **https://github.com/Obersan6/Mastermind-game/blob/phase-1/docs/steps-thoughtprocess.md**
 
