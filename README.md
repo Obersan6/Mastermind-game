@@ -54,7 +54,6 @@ Meets the minimum challenge requirements:
 
 - **[Video Demo - Phase-2](https://youtu.be/oSHFfTpTDzw)**
 - **Steps — Thought Process & Planning (Phase-1)**
-
 **https://github.com/Obersan6/Mastermind-game/blob/main/docs/steps-thoughtprocess.md**
 
 Focused on strengthening **backend logic** while keeping the UI **minimal and clear** (this is a **server-side challenge**, so styling is simple and time goes into enforceable logic and tests).
